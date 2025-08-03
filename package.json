@@ -28,7 +28,7 @@
     "@telegraf/session": "^2.0.0-beta.7",
     "dotenv": "^17.2.1",
     "input": "^1.0.1",
-    "kysely": "^0.28.3",
+    "kysely": "0.27.2",
     "node-cron": "^4.2.1",
     "node-pg-migrate": "^8.0.3",
     "node-schedule": "^2.1.1",
