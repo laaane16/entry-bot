@@ -4,7 +4,7 @@ const {createClient, disconnectClient} = require('../dist/accounts');
 const {pool} = require('../dist/db')
 const input = require('input');
 
-const accountsPath = path.resolve(__dirname, '..', '..', 'accounts.json');
+const accountsPath = path.resolve(__dirname, '..', 'accounts.json');
 const ACCOUNTS = JSON.parse(fs.readFileSync(accountsPath, 'utf8'));
 
 const getNewSessionString = async (apiId, apiHash, phone, password, proxy) => {
