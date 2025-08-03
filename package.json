@@ -9,7 +9,7 @@
     "start:dev": "nodemon --exec ts-node ./src/index.ts",
     "migrate": "node-pg-migrate up",
     "initAccounts": "node scripts/initAccounts.js",
-    "postinstall": "npm run build && npm run migrate && npm run initAccounts"
+    "init": "npm run build && npm run migrate && npm run initAccounts"
   },
   "keywords": [],
   "author": "",
