@@ -48,7 +48,9 @@ const createAccount = async ({apiId, apiHash, phone, password}) => {
 }
 
 (async function (){
+  console.log('Старт скрипта', ACCOUNTS)
   for (const account of ACCOUNTS){
+    console.log(`Начало создания аккаунта: ${JSON.stringify(account)}`)
     try{
       await createAccount(account);
     }
