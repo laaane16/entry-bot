@@ -13,6 +13,8 @@ services:
     build: .
     env_file:
       - ./.env
+    volumes:
+      - ./accounts.json:/app/accounts.json:ro
     restart: always
     depends_on:
       - db
