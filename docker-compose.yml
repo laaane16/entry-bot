@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:17-alpine
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: on-failure
+    env_file:
+      - ./.env
+    networks:
+      - app-network 
+
+  bot:
+    build: .
+    env_file:
+      - ./.env
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - app-network   
+
+networks:
+  app-network:
+
+volumes:
+  pgdata:
