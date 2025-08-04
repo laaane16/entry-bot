@@ -23,13 +23,13 @@ export class CodePrompter {
   private _reject?: (err: any) => void;
   private _promise: Promise<string>;
 
-  constructor(timeoutMs = 1.5 * 60 * 1000) {
+  constructor(timeoutMs = 60 * 1000) {
     this._promise = new Promise<string>((resolve, reject) => {
       this._resolve = resolve;
       this._reject = reject;
 
       setTimeout(() => {
-        reject(new Error("Вышло время для ввода кода"));
+        resolve('');
       }, timeoutMs);
     });
   }
@@ -76,6 +76,7 @@ const restartBot = async (ctx: IBotContext) => {
     await ctx.reply("Добро пожаловать в админ панель. Какое действие желаете совершить?", Markup.inlineKeyboard([
       [Markup.button.callback("Добавить аккаунт", "add_account")],
       [Markup.button.callback("Удалить аккаунт", "delete_account")],
+      [Markup.button.callback("Вывести список аккаунтов", "get_all_accounts")],
     ]))
   }
 }
@@ -96,6 +97,15 @@ bot.action('delete_account', async (ctx: IBotContext) => {
   await ctx.reply('Введите apiId: ');
 })
 
+bot.action('get_all_accounts', async (ctx: IBotContext) => {
+  const {rows} = await pool.query(`SELECT * FROM accounts`);
+  let str = 'Аккаунты по API_ID:\n'
+  rows.forEach((i) => str += `${i.apiId}\n`);
+
+  await ctx.reply(str);
+})
+
+
 // MESSAGE HANDLER
 bot.on('message', async (ctx: IBotContext) => {
   const { awaiting, action } = ctx.session;
@@ -110,6 +120,14 @@ bot.on('message', async (ctx: IBotContext) => {
       case 'apiId':
         // @ts-ignore
         ctx.session.apiId = Number(ctx.message.text);
+        // @ts-expect-error
+        const includes = await pool.query(`SELECT * FROM accounts WHERE "apiId" = ${ctx.message.text}`).then((r) => Boolean(r.rows[0]));
+        if (includes){
+          await ctx.reply('Аккаунт уже существует');
+          ctx.session = {};
+          return;
+        }
+
         ctx.session.awaiting = 'apiHash';
         await ctx.reply('Введите apiHash: ');
         return;
@@ -148,7 +166,7 @@ bot.on('message', async (ctx: IBotContext) => {
         prompters[apiId] = prompt
 
         try {
-          createAccount(apiId, apiHash, phone, password, prompt).then(() => {console.log('Аккаунт успешно создан'); ctx.reply('Аккаунт успешно создан')});
+          await createAccount(apiId, apiHash, phone, password, prompt).then(() => {console.log('Аккаунт успешно создан'); ctx.reply('Аккаунт успешно создан')});
         } catch (e) {
           console.error('Ошибка создания аккаунта:', e);
           await ctx.reply('❌ Ошибка при создании аккаунта.');
@@ -188,3 +206,5 @@ bot.on('message', async (ctx: IBotContext) => {
 
 
 bot.launch();
+
+export default bot;

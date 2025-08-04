@@ -17,6 +17,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@telegraf/types": "^8.3.1",
+    "@types/luxon": "^3.7.1",
     "@types/node": "^24.1.0",
     "@types/node-schedule": "^2.1.8",
     "@types/pg": "^8.15.5",
@@ -29,6 +30,7 @@
     "dotenv": "^17.2.1",
     "input": "^1.0.1",
     "kysely": "0.27.2",
+    "luxon": "^3.7.1",
     "node-cron": "^4.2.1",
     "node-pg-migrate": "^8.0.3",
     "node-schedule": "^2.1.1",
