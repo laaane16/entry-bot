@@ -84,6 +84,8 @@ bot.start(async (ctx) => {
   await restartBot(ctx);
 })
 
+bot.telegram.sendMessage(ADMIN_ID, 'Бот начал свою работу');
+
 // ACTIONS
 bot.action('add_account', async (ctx: IBotContext) => {
   ctx.session.action = 'add'
