@@ -12,15 +12,21 @@ export const createAccount = async (apiId: number, apiHash: string, phone: strin
   const session = await getSessionString(apiId, apiHash, phone, password, prompter);
 
   pool.query(`
-    INSERT INTO accounts ("apiId", "apiHash", session)
-    VALUES (${apiId}, '${apiHash}', '${session}')
+    INSERT INTO accounts ("apiId", "apiHash", session, phone)
+    VALUES (${apiId}, '${apiHash}', '${session}', '${phone}')
     ON CONFLICT ("apiId") DO NOTHING;
   `)
 }
 
-export const deleteAccount = async (apiId: number) => {
-  pool.query(
-    `DELETE FROM accounts WHERE "apiId" = ${apiId}`
+export const deleteAccount = async (phone: string) => {
+  const res = await pool.query(
+    `DELETE FROM accounts WHERE "phone" = '${phone}'`
   )
+
+  if (res.rowCount === 1){
+    return 'Аккаунт успешно удалён';
+  }
+
+  return 'Аккаунта с таким номером не существует';
 }
 

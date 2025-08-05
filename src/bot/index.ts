@@ -95,14 +95,14 @@ bot.action('add_account', async (ctx: IBotContext) => {
 
 bot.action('delete_account', async (ctx: IBotContext) => {
   ctx.session.action = 'delete'
-  ctx.session.awaiting = 'apiId';
-  await ctx.reply('Введите apiId: ');
+  ctx.session.awaiting = 'phone';
+  await ctx.reply('Введите номер телефона: ');
 })
 
 bot.action('get_all_accounts', async (ctx: IBotContext) => {
   const {rows} = await pool.query(`SELECT * FROM accounts`);
-  let str = 'Аккаунты по API_ID:\n'
-  rows.forEach((i) => str += `${i.apiId}\n`);
+  let str = 'Аккаунты по номеру телефона:\n'
+  rows.forEach((i) => str += `  ${i.phone}\n`);
 
   await ctx.reply(str);
 })
@@ -189,11 +189,11 @@ bot.on('message', async (ctx: IBotContext) => {
   }
   if (action === 'delete'){
     // @ts-ignore
-    const apiId = Number(ctx.message.text);
+    const phone = ctx.message.text;
     
     try {
-      await deleteAccount(apiId);
-      await ctx.reply('✅ Аккаунт успешно удалён.');
+      const log = await deleteAccount(phone);
+      await ctx.reply(log);
     } catch (e) {
       console.error('Ошибка создания аккаунта:', e);
       await ctx.reply('❌ Ошибка при удалении аккаунта.');

@@ -22,15 +22,17 @@ export const createClient = (apiId: number, apiHash: string, sessionString: stri
 }
 
 export const getSessionString = async (apiId: number, apiHash: string, phone: string, password: string, prompter: CodePrompter, proxy?: ProxyInterface) => {
-  const client = createClient(apiId, apiHash, '', proxy)
+  const client = createClient(apiId, apiHash, '', proxy);
+  let disconnectAuth;
   try {
     await client.start({
       phoneNumber: phone,
       password: async () => password,
       phoneCode: async () => prompter.codePromise,
       onError: async (err: Error) =>{
-        await disconnectClient(client);
-        throw new Error(err.message);
+        logger(phone, `Произошла ошибка при подключении: ${err}`);
+        disconnectAuth = true;
+        return true;
       }
     });
   }catch(e: unknown){
@@ -42,6 +44,9 @@ export const getSessionString = async (apiId: number, apiHash: string, phone: st
     }
   }
 
+  if (disconnectAuth){
+    throw new Error('Дисконнект клиента по ошибке при авторизации')
+  }
   const session = client.session.save();
   await disconnectClient(client);
   // @ts-ignore 
@@ -57,32 +62,32 @@ export const disconnectClient = async (client: TelegramClient) => {
   }
 }
 
-const pingOffline = async (client: TelegramClient, activeTime: number, apiId: number) => {
+const pingOffline = async (client: TelegramClient, activeTime: number, phone: string) => {
   setTimeout(async () => {
     try{
       await client.connect();
       await client.invoke(new Api.account.UpdateStatus({ offline: true }));
-      logger(apiId, 'Пинг: аккаунт оффлайн')
+      logger(phone, 'Пинг: аккаунт оффлайн')
 
     }catch(e){
-      logger(apiId, `Ошибка: ${e}`);
+      logger(phone, `Ошибка: ${e}`);
     }finally{
       await disconnectClient(client);
     }
   }, activeTime)
 }
 
-const pingOnline = async (apiId: number, apiHash: string, sessionString: string, activeTime: number, proxy?: ProxyInterface) => {
+const pingOnline = async (apiId: number, apiHash: string, sessionString: string, activeTime: number, phone: string, proxy?: ProxyInterface,) => {
   const client = createClient(apiId, apiHash, sessionString, proxy)
   
   try {
     await client.connect(); 
     await client.invoke(new Api.account.UpdateStatus({ offline: false }));
-    logger(apiId, 'Пинг: аккаунт показан онлайн');
+    logger(phone, 'Пинг: аккаунт показан онлайн');
     
-    pingOffline(client, activeTime, apiId);
+    pingOffline(client, activeTime, phone);
   } catch (err) {
-    logger(apiId, `Ошибка: ${err}`);
+    logger(phone, `Ошибка: ${err}`);
   } finally{
     await disconnectClient(client);
   }
@@ -99,9 +104,9 @@ cron.schedule('55 6 * * *', async () => {
   
   let debugStr = 'Планируемые посещения аккаунтов:\n';
   accounts.forEach((account, index) => {
-    const { apiId, apiHash, session } = account;
+    const { apiId, apiHash, session, phone } = account;
     const entryTimes = times[index];
-    debugStr += `\nAPI_ID: ${apiId}:\n`;
+    debugStr += `\nНомер телефона: ${phone}:\n`;
 
     entryTimes.forEach(({hour, minute, activeTime}, idx) => {
       debugStr += `  ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}\n`;
@@ -109,10 +114,10 @@ cron.schedule('55 6 * * *', async () => {
       const jobTime = DateTime.now().setZone('Europe/Moscow').set({ hour, minute, second: 0, millisecond: 0 }).toJSDate();
       
       schedule.scheduleJob(jobTime, () => {
-          pingOnline(apiId, apiHash, session, activeTime).catch(e => logger(apiId, `Произошла ошибка: ${e}`));
+          pingOnline(apiId, apiHash, session, activeTime, phone).catch(e => logger(phone, `Произошла ошибка: ${e}`));
       });
   
-      logger(apiId, `Запланировано на ${hour}:${minute}`);
+      logger(phone, `Запланировано на ${hour}:${minute}`);
     })
   });
 
