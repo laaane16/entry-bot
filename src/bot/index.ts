@@ -23,7 +23,7 @@ export class CodePrompter {
   private _reject?: (err: any) => void;
   private _promise: Promise<string>;
 
-  constructor(timeoutMs = 2 * 60 * 1000) {
+  constructor(timeoutMs = 1.5 * 60 * 1000) {
     this._promise = new Promise<string>((resolve, reject) => {
       this._resolve = resolve;
       this._reject = reject;
@@ -167,12 +167,16 @@ bot.on('message', async (ctx: IBotContext) => {
         const prompt = new CodePrompter();
         prompters[apiId] = prompt
 
-        try {
-          await createAccount(apiId, apiHash, phone, password, prompt).then(() => {console.log('Аккаунт успешно создан'); ctx.reply('Аккаунт успешно создан')});
-        } catch (e) {
+        createAccount(apiId, apiHash, phone, password, prompt)
+        .then(() => {
+          console.log('Аккаунт успешно создан'); 
+          ctx.reply('Аккаунт успешно создан')
+        })
+        .catch((e) => {
           console.error('Ошибка создания аккаунта:', e);
-          await ctx.reply('❌ Ошибка при создании аккаунта.');
-        }
+          ctx.reply('❌ Ошибка при создании аккаунта.');
+        });
+
         return;
         
       case 'code':
