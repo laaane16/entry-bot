@@ -23,7 +23,7 @@ export class CodePrompter {
   private _reject?: (err: any) => void;
   private _promise: Promise<string>;
 
-  constructor(timeoutMs = 60 * 1000) {
+  constructor(timeoutMs = 2 * 60 * 1000) {
     this._promise = new Promise<string>((resolve, reject) => {
       this._resolve = resolve;
       this._reject = reject;
