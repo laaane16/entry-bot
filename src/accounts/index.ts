@@ -109,7 +109,7 @@ cron.schedule('55 6 * * *', async () => {
     debugStr += `\nНомер телефона: ${phone}:\n`;
 
     entryTimes.forEach(({hour, minute, activeTime}, idx) => {
-      debugStr += `  ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}\n`;
+      debugStr += `  ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}; В течение ${activeTime / 1000} с;\n`;
 
       const jobTime = DateTime.now().setZone('Europe/Moscow').set({ hour, minute, second: 0, millisecond: 0 }).toJSDate();
       
@@ -117,7 +117,7 @@ cron.schedule('55 6 * * *', async () => {
           pingOnline(apiId, apiHash, session, activeTime, phone).catch(e => logger(phone, `Произошла ошибка: ${e}`));
       });
   
-      logger(phone, `Запланировано на ${hour}:${minute}`);
+      logger(phone, `Запланировано на ${hour}:${minute}; В течение ${activeTime / 1000} с;`);
     })
   });
 

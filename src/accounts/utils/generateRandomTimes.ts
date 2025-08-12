@@ -1,11 +1,13 @@
 import { getRandomDelayMS } from "./getRandomDelayMS";
 
+interface Time { hour: number; minute: number; activeTime: number }
+
 export const generateRandomTimes = (count: number) => {
   const used = new Set();
-  const result = [];
+  const result: Time[] = [];
 
-  while (result.length < count) {
-    const hour = Math.floor(Math.random() * (24 - 7)) + 7; // 7..23
+  const addRandomTime = (start: number = 7, end: number = 24) => {
+    const hour = Math.floor(Math.random() * (end - start + 1)) + start;
     const minute = Math.floor(Math.random() * 60);
     const activeTime = getRandomDelayMS();
 
@@ -14,6 +16,13 @@ export const generateRandomTimes = (count: number) => {
       used.add(timeStr);
       result.push({ hour, minute, activeTime });
     }
+  }
+
+  addRandomTime(7, 11);
+  addRandomTime(17, 21);
+
+  while (result.length < count) {
+    addRandomTime();
   }
 
   return result;
@@ -29,7 +38,7 @@ export const generateRandomTimesForCounts = (
   }
 
   const allBatches: Array<
-    { hour: number; minute: number; activeTime: number }[]
+    Time[]
   > = [];
 
   for (let i = 0; i < groupCount; i++) {
