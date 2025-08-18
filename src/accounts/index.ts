@@ -93,7 +93,7 @@ const pingOnline = async (apiId: number, apiHash: string, sessionString: string,
   }
 }
 
-cron.schedule('55 6 * * *', async () => {
+cron.schedule('0 11 * * *', async () => {
   console.log('Планирование задач на сегодня...');
   
   const res = await pool.query('SELECT * FROM accounts');
