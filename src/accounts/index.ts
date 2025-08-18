@@ -93,7 +93,7 @@ const pingOnline = async (apiId: number, apiHash: string, sessionString: string,
   }
 }
 
-cron.schedule('20 11 * * *', async () => {
+cron.schedule('55 6 * * *', async () => {
   console.log('Планирование задач на сегодня...');
   
   const res = await pool.query('SELECT * FROM accounts');
@@ -120,9 +120,10 @@ cron.schedule('20 11 * * *', async () => {
       logger(phone, `Запланировано на ${hour}:${minute}: В течение ${activeTime / 1000} с`);
     })
   });
-
-  // await bot.telegram.sendMessage(process.env.ADMIN_ID ?? '', debugStr);
+  while (debugStr.length > 0){
+    await bot.telegram.sendMessage(process.env.ADMIN_ID ?? '', debugStr.slice(0, 4096));
+    debugStr = debugStr.slice(4096);
+  }
 },{
     timezone: 'Europe/Moscow'
   });
-
