@@ -93,7 +93,7 @@ const pingOnline = async (apiId: number, apiHash: string, sessionString: string,
   }
 }
 
-cron.schedule('11 2 * * *', async () => {
+cron.schedule('20 11 * * *', async () => {
   console.log('Планирование задач на сегодня...');
   
   const res = await pool.query('SELECT * FROM accounts');
@@ -121,7 +121,7 @@ cron.schedule('11 2 * * *', async () => {
     })
   });
 
-  await bot.telegram.sendMessage(process.env.ADMIN_ID ?? '', debugStr);
+  // await bot.telegram.sendMessage(process.env.ADMIN_ID ?? '', debugStr);
 },{
     timezone: 'Europe/Moscow'
   });
